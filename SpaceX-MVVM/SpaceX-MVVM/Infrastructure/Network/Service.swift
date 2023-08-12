@@ -12,18 +12,40 @@ enum ServiceMethod: String {
     case post = "POST"
 }
 
+enum NetworkError: Error {
+    case invalidURL
+    case requestFailed(Error)
+    case invalidResponse
+    case decodingFailed(Error)
+}
+
+enum Environment {
+    case production
+    case uat
+    
+    var baseURL: String {
+        switch self {
+        case .production:
+            return "https://api.example.com"
+        case .uat:
+            return "https://uat-api.example.com"
+        }
+    }
+}
+
 protocol Service {
-    var headers: [String: Any]? { get }
-    var baseURL: String { get }
+    var environment: Environment { get }
+    var headers: [String: String] { get }
     var path: String { get }
     var parameters: [String: Any]? { get }
     var method: ServiceMethod { get }
     var body: Data? { get }
+    var baseURL: String { get }
+
 }
 
 extension Service {
-    
-    private var url: URL? {
+    var url: URL? {
         guard var urlComponents = URLComponents(string: baseURL) else {
             return nil
         }
@@ -34,28 +56,24 @@ extension Service {
         if parameters.count > 0 {
             urlComponents.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
         }
-        
         return urlComponents.url
     }
-    
-    public var urlRequest: URLRequest {
-        guard let url = self.url else {
+}
+
+extension Service {
+    var urlRequest: URLRequest {
+        guard let url = url else {
             fatalError("URL could not be built")
         }
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         
         if !headers.isEmpty {
-            headers.forEach { (key, value) in
-                request.addValue(value as! String, forHTTPHeaderField: key)
-            }
+            request.allHTTPHeaderFields = headers
         }
         
-        if (method == .post) {
-            if let body = body {
-                //print("make body: \(String(data: body, encoding: .utf8) ?? "")")
-                request.httpBody = body
-            }
+        if method == .post {
+            request.httpBody = body
         }
         
         return request
@@ -75,13 +93,13 @@ extension Service {
 
 enum Result<T> {
     case success(T)
-    case failure(Error)
+    case failure(NetworkError)
     case empty
 }
 
 
 class ServiceProvider<T: Service> {
-    var urlSession : URLSessionProtocol
+    var urlSession : URLSession
     
     init() {
         let config = URLSessionConfiguration.default
@@ -90,62 +108,29 @@ class ServiceProvider<T: Service> {
     }
     
     func load<U>(service: T, decodeType: U.Type, completion: @escaping (Result<U>) -> Void) where U: Decodable {
-        call(service.urlRequest) { result in
-            switch result {
-            case .success(let data):
+        let request = service.urlRequest
+        urlSession.dataTask(with: request) { (data, _, error) in
+            if let error = error {
+                DispatchQueue.main.async {
+                    completion(.failure(.requestFailed(error)))
+                }
+            } else if let data = data {
                 let decoder = JSONDecoder()
                 do {
                     let resp = try decoder.decode(decodeType, from: data)
-                    completion(.success(resp))
-                }
-                catch {
-                    completion(.failure(error))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            case .empty:
-                completion(.empty)
-            }
-        }
-    }
-}
-
-extension ServiceProvider {
-    private func call(_ request: URLRequest, deliverQueue: DispatchQueue = DispatchQueue.main, completion: @escaping (Result<Data>) -> Void) {
-        urlSession.dataTask(with: request) { (data, _, error) in
-            if let error = error {
-                deliverQueue.async {
-                    completion(.failure(error))
-                }
-            } else if let data = data {
-                deliverQueue.async {
-                    completion(.success(data))
+                    DispatchQueue.main.async {
+                        completion(.success(resp))
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        completion(.failure(.decodingFailed(error)))
+                    }
                 }
             } else {
-                deliverQueue.async {
+                DispatchQueue.main.async {
                     completion(.empty)
                 }
             }
         }.resume()
     }
 }
-
-protocol URLSessionProtocol {
-    typealias DataTaskResult = (Data?, URLResponse?, Error?) -> Void
-    
-    func dataTask(with request: URLRequest, completionHandler: @escaping DataTaskResult) -> URLSessionDataTaskProtocol
-}
-
-protocol URLSessionDataTaskProtocol {
-    func resume()
-}
-
-
-extension URLSession: URLSessionProtocol {
-    func dataTask(with request: URLRequest, completionHandler: @escaping URLSessionProtocol.DataTaskResult) -> URLSessionDataTaskProtocol {
-        return dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
-    }
-}
-
-extension URLSessionDataTask: URLSessionDataTaskProtocol {}
-

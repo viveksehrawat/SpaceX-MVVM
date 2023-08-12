@@ -13,13 +13,18 @@ enum HomeService {
 }
 
 extension HomeService: Service {
-    var headers: [String : Any]? {
+    
+    var environment: Environment {
+            return .production
+        }
+    
+    var headers: [String : String] {
         [:]
     }
     
     var baseURL: String {
-        return "https://api.spacexdata.com"
-    }
+            return environment.baseURL
+        }
 
     var path: String {
         switch self {
