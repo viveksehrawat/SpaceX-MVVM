@@ -16,6 +16,8 @@
 		4358BC7D2A86462B00F16DAB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4358BC7C2A86462B00F16DAB /* HomeView.swift */; };
 		4358BC7F2A86467500F16DAB /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4358BC7E2A86467500F16DAB /* HomeViewModel.swift */; };
 		4358BC852A86609200F16DAB /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4358BC842A86609200F16DAB /* DetailView.swift */; };
+		4359D7B62A87ED4F0094A27C /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4359D7B52A87ED4F0094A27C /* Async.swift */; };
+		4359D7B82A8891F10094A27C /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4359D7B72A8891F10094A27C /* File.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,8 @@
 		4358BC7C2A86462B00F16DAB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		4358BC7E2A86467500F16DAB /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		4358BC842A86609200F16DAB /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
+		4359D7B52A87ED4F0094A27C /* Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
+		4359D7B72A8891F10094A27C /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +130,8 @@
 			children = (
 				4358BC742A863B0800F16DAB /* Service.swift */,
 				4358BC762A86458100F16DAB /* HomeService.swift */,
+				4359D7B72A8891F10094A27C /* File.swift */,
+				4359D7B52A87ED4F0094A27C /* Async.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -204,8 +210,10 @@
 				4358BC7F2A86467500F16DAB /* HomeViewModel.swift in Sources */,
 				4358BC752A863B0800F16DAB /* Service.swift in Sources */,
 				4358BC852A86609200F16DAB /* DetailView.swift in Sources */,
+				4359D7B62A87ED4F0094A27C /* Async.swift in Sources */,
 				4358BC7D2A86462B00F16DAB /* HomeView.swift in Sources */,
 				4358BC732A86396000F16DAB /* Launch.swift in Sources */,
+				4359D7B82A8891F10094A27C /* File.swift in Sources */,
 				4358BC5F2A86341500F16DAB /* SpaceX_MVVMApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

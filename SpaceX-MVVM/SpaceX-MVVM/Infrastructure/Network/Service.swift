@@ -108,6 +108,7 @@ class ServiceProvider<T: Service> {
     }
     
     func load<U>(service: T, decodeType: U.Type, completion: @escaping (Result<U>) -> Void) where U: Decodable {
+        
         let request = service.urlRequest
         urlSession.dataTask(with: request) { (data, _, error) in
             if let error = error {

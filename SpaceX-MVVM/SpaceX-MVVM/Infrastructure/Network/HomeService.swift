@@ -15,7 +15,7 @@ enum HomeService {
 extension HomeService: Service {
     
     var environment: Environment {
-            return .production
+            return .uat
         }
     
     var headers: [String : String] {
